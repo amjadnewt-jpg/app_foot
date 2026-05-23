@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Supporter - Stadium Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">
+                    S
+                </div>
+
+                <span class="text-xl font-bold tracking-tight text-slate-800">
+                    STADIUM<span class="text-blue-600">CLIENT</span>
+                </span>
+            </div>
+
+            <div class="flex items-center gap-4">
+
+                <div class="hidden sm:block text-right">
+                    <p class="text-xs text-slate-500 font-medium">
+                        Bienvenue,
+                    </p>
+
+                    <p class="text-sm font-bold text-slate-800">
+                        {{ user.username }}
+                    </p>
+                </div>
+
+                <a href="/logout"
+                   class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition">
+                    Déconnexion
+                </a>
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- HERO -->
+    <div class="relative rounded-3xl overflow-hidden bg-blue-900 h-64 mb-10 shadow-2xl shadow-blue-200">
+
+        <img src="https://picsum.photos/seed/stadium/1200/400"
+             class="w-full h-full object-cover opacity-40">
+
+        <div class="absolute inset-0 flex flex-col justify-center px-10">
+
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-2 italic uppercase tracking-tight">
+                Vivez l'émotion du direct
+            </h1>
+
+            <p class="text-blue-100 text-lg max-w-xl">
+                Réservez vos places pour les prochains matchs.
+            </p>
+
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <!-- MATCHS -->
+        <div class="lg:col-span-2 space-y-8">
+
+            <section>
+
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">
+                        Matchs disponibles
+                    </h2>
+                </div>
+
+                <!-- FILTRES -->
+                <form method="GET"
+                      action="/"
+                      class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    <!-- RECHERCHE CLUB -->
+                    <input
+                        type="text"
+                        name="club_search"
+                        placeholder="Rechercher un club..."
+                        value="{{ selected_club_search }}"
+                        class="bg-slate-100 border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none"
+                    >
+
+                    <!-- CHAMPIONNAT -->
+                    <select name="competition_id"
+                            class="bg-slate-100 border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none">
+
+                        <option value="">
+                            Tous les championnats
+                        </option>
+
+                        {% for competition in competitions %}
+
+                        <option
+                            value="{{ competition.id }}"
+                            {% if selected_competition == competition.id|string %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ competition.nom }}
+                        </option>
+
+                        {% endfor %}
+                    </select>
+
+                    <!-- BOUTON -->
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl uppercase">
+
+                        Filtrer
+
+                    </button>
+
+                </form>
+
+                <!-- LISTE MATCH -->
+                <div class="space-y-4">
+
+                    {% if matchs %}
+
+                        {% for match in matchs %}
+
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-blue-300 transition shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+
+                            <div class="flex items-center gap-8">
+
+                                <div class="text-center">
+
+                                    <p class="text-2xl font-black text-slate-800">
+                                        {{ match.club.nom }}
+                                    </p>
+
+                                    <p class="text-xs font-bold text-slate-400 uppercase">
+                                        {% if match.lieu == 'Domicile' %}
+                                            Hôte
+                                        {% else %}
+                                            Visiteur
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+
+                                <div class="flex flex-col items-center">
+
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded mb-1 uppercase tracking-tighter
+                                    {% if match.competition and match.competition.pays == 'International' %}
+                                        bg-purple-100 text-purple-600
+                                    {% else %}
+                                        bg-green-100 text-green-600
+                                    {% endif %}">
+
+                                        {{ match.competition.nom if match.competition else 'Amical' }}
+
+                                    </span>
+
+                                    <div class="text-xl font-black text-blue-600 italic">
+                                        VS
+                                    </div>
+
+                                </div>
+
+                                <div class="text-center">
+
+                                    <p class="text-2xl font-black text-slate-800">
+                                        {{ match.adversaire }}
+                                    </p>
+
+                                    <p class="text-xs font-bold text-slate-400 uppercase">
+                                        {% if match.lieu == 'Domicile' %}
+                                            Visiteur
+                                        {% else %}
+                                            Hôte
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="text-center md:text-right">
+
+                                <p class="text-sm font-bold text-slate-500">
+                                    {{ match.date }}
+                                </p>
+
+                                <p class="text-xs text-slate-400 mb-4">
+                                    {{ match.lieu }}
+                                </p>
+
+                                <a href="/reserver/{{ match.id }}"
+                                   class="bg-blue-600 hover:bg-blue-700 text-white font-black px-6 py-2 rounded-full text-sm transition shadow-lg shadow-blue-200 uppercase tracking-tighter inline-block">
+
+                                    Réserver
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="bg-white p-10 rounded-2xl border border-slate-200 text-center">
+
+                            <p class="text-slate-500 italic">
+                                Aucun match trouvé.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="space-y-8">
+
+            <!-- BILLETS -->
+            <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+
+                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase tracking-tight">
+                    Mes Billets 🎟️
+                </h3>
+
+                <div class="space-y-4">
+
+                    {% if user.mes_billets %}
+
+                        {% for billet in user.mes_billets %}
+
+                        <div class="p-4 bg-slate-50 rounded-2xl border-l-4 border-blue-600">
+
+                            <p class="text-xs font-black text-blue-600 uppercase mb-1">
+                                {{ billet.match.adversaire }}
+                            </p>
+
+                            <p class="text-sm font-bold text-slate-800">
+                                {{ billet.tribune.nom }}
+                            </p>
+
+                            <div class="flex justify-between items-center mt-2">
+
+                                <span class="text-[10px] text-slate-400 font-mono italic">
+                                    #00{{ billet.id }}
+                                </span>
+
+                                <span class="text-xs font-black text-slate-900">
+                                    {{ billet.tribune.prix }}€
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-xs text-slate-400 italic text-center py-4">
+                            Aucun billet acheté.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+            <!-- PROFIL -->
+            <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+
+                <h3 class="text-xl font-black text-slate-800 mb-4 uppercase tracking-tight">
+                    Votre Profil
+                </h3>
+
+                <div class="space-y-4">
+
+                    <div class="flex justify-between items-center py-2 border-b border-slate-100">
+
+                        <span class="text-sm text-slate-500">
+                            Email
+                        </span>
+
+                        <span class="text-sm font-bold">
+                            {{ user.email }}
+                        </span>
+
+                    </div>
+
+                    <div class="flex justify-between items-center py-2 border-b border-slate-100">
+
+                        <span class="text-sm text-slate-500">
+                            Statut
+                        </span>
+
+                        <span class="text-xs font-black bg-blue-100 text-blue-700 px-2 py-1 rounded-full uppercase">
+                            Supporter
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</main>
+
+</body>
+</html>

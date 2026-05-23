@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Espace Client</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .header { background: #007bff; color: white; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .content { margin-top: 20px; background: white; padding: 2rem; border-radius: 8px; }
+        a { color: white; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Espace Client</h1>
+        <div>
+            <span>Bonjour, {{ username }}</span> | 
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Vos Billets</h2>
+        <p>Bienvenue sur votre espace personnel. Ici vous pourrez voir vos réservations de matchs.</p>
+    </div>
+</body>
+</html>

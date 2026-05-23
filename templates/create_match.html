@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmer un Match - Stadium Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+        <div class="mb-8 text-center">
+            <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center font-bold text-white mx-auto mb-4 text-xl">M</div>
+            <h1 class="text-3xl font-black tracking-tight">Nouveau Match</h1>
+            <p class="text-slate-400 text-sm mt-2">Remplissez les détails de la rencontre</p>
+        </div>
+
+        <form action="/add_match" method="POST" class="space-y-6">
+            <!-- Lieu du match -->
+            <div>
+                <label class="block text-xs font-mono text-slate-400 uppercase mb-3 tracking-widest">Lieu de la rencontre</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="relative flex items-center justify-center p-4 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer hover:border-red-500 transition group">
+                        <input type="radio" name="lieu" value="Domicile" checked class="peer hidden">
+                        <span class="text-sm font-bold peer-checked:text-red-500 transition">🏠 Domicile</span>
+                        <div class="absolute inset-0 border-2 border-transparent peer-checked:border-red-500 rounded-xl pointer-events-none"></div>
+                    </label>
+                    <label class="relative flex items-center justify-center p-4 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer hover:border-red-500 transition group">
+                        <input type="radio" name="lieu" value="Extérieur" class="peer hidden">
+                        <span class="text-sm font-bold peer-checked:text-red-500 transition">✈️ Extérieur</span>
+                        <div class="absolute inset-0 border-2 border-transparent peer-checked:border-red-500 rounded-xl pointer-events-none"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Compétition -->
+            <div>
+                <label class="block text-xs font-mono text-slate-400 uppercase mb-2 tracking-widest">Compétition</label>
+                <select name="competition_id" required 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500 outline-none transition bg-slate-900 text-white">
+                    <option value="" disabled selected>Choisir une compétition...</option>
+                    {% for comp in competitions %}
+                        <option value="{{ comp.id }}">{{ comp.nom }} ({{ comp.pays }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Adversaire avec recherche -->
+            <div>
+                <label class="block text-xs font-mono text-slate-400 uppercase mb-2 tracking-widest">Adversaire</label>
+                <input type="text" name="adversaire" list="clubs-list" placeholder="Rechercher un club..." required 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500 outline-none transition placeholder:text-slate-600">
+                <datalist id="clubs-list">
+                    {% for club in clubs %}
+                        <option value="{{ club.nom }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            
+            <!-- Date -->
+            <div>
+                <label class="block text-xs font-mono text-slate-400 uppercase mb-2 tracking-widest">Date et Heure</label>
+                <input type="datetime-local" name="date" required 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500 outline-none transition">
+            </div>
+
+            <!-- Sélection des Tribunes -->
+            <div>
+                <label class="block text-xs font-mono text-slate-400 uppercase mb-3 tracking-widest">Tribunes Ouvertes</label>
+                <div class="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {% if tribunes %}
+                        {% for tribune in tribunes %}
+                        <label class="flex items-center gap-3 p-3 bg-slate-900/50 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/30 transition">
+                            <input type="checkbox" name="tribunes" value="{{ tribune.id }}" class="w-4 h-4 rounded border-slate-700 text-red-600 focus:ring-red-500 bg-slate-800">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">{{ tribune.nom }}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">{{ tribune.capacite }} places • {{ tribune.prix }}€</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-slate-500 italic">Aucune tribune créée. <a href="/" class="text-red-500 underline">Créez-en une d'abord.</a></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="pt-4 space-y-3">
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-red-900/20">
+                    Programmer le Match
+                </button>
+                <a href="/" class="block w-full text-center bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-2xl transition">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

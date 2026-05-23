@@ -1,0 +1,4 @@
+config.py
+database_v2.db
+__pycache__/
+static/qrcodes/

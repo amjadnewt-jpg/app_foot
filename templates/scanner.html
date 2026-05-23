@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Scanner QR</title>
+
+```
+<!-- Librairie scanner -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+```
+
+</head>
+<body>
+
+<h2>📷 Scanner un billet</h2>
+
+<!-- Zone caméra -->
+
+<div id="reader" style="width:300px;"></div>
+
+<!-- Résultat -->
+
+<p id="result"></p>
+
+<script>
+function onScanSuccess(decodedText) {
+    document.getElementById("result").innerText = "QR détecté : " + decodedText;
+
+    // Redirection vers Flask
+    window.location.href = "/scan/" + decodedText;
+}
+
+// Initialisation scanner
+let scanner = new Html5QrcodeScanner(
+    "reader",
+    {
+        fps: 10,
+        qrbox: 250
+    }
+);
+
+// Lancer le scan
+scanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>
