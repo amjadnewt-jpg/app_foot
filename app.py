@@ -3,6 +3,7 @@ from models import db, User, Club, Tribune, Match, Billet, Competition
 from config import Config
 from datetime import datetime
 from flask_mail import Mail, Message
+import os
 
 
 from flask import request
@@ -16,7 +17,7 @@ mail = Mail(app)
 
 import stripe
 stripe.api_key = app.config['STRIPE_SECRET_KEY']
-endpoint_secret = "whsec_13a5b548a4a70bc5eb0d034906d3358525fe2d196d81238c1c5fa907d87aed01"
+endpoint_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
 
 
 # Création de la base et d'un club par défaut
@@ -40,7 +41,13 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    user = User.query.get(session.get('user_id'))
+
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return redirect(url_for('login'))
+
+    user = User.query.get(user_id)
 
     if not user:
         return redirect(url_for('login'))
