@@ -7,80 +7,198 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
+
     <div class="max-w-4xl mx-auto py-12 px-4">
+
         <!-- Retour -->
-        <a href="/" class="text-blue-600 font-bold mb-8 inline-block hover:underline">← Retour aux matchs</a>
+        <a href="/" class="text-blue-600 font-bold mb-8 inline-block hover:underline">
+            ← Retour aux matchs
+        </a>
 
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+
             <!-- Header du Match -->
             <div class="bg-blue-600 p-8 text-white">
+
                 <div class="flex justify-between items-center mb-4">
-                    <span class="bg-blue-500 text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">Réservation en cours</span>
-                    <span class="text-sm font-bold opacity-80">📅 {{ match.date }}</span>
+                    <span class="bg-blue-500 text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                        Réservation en cours
+                    </span>
+
+                    <span class="text-sm font-bold opacity-80">
+                        📅 {{ match.date }}
+                    </span>
                 </div>
+
                 <h1 class="text-4xl font-black italic uppercase tracking-tighter mb-2">
-                    {{ match.club.nom }} <span class="text-blue-300">vs</span> {{ match.adversaire }}
+                    {{ match.club.nom }}
+                    <span class="text-blue-300">vs</span>
+                    {{ match.adversaire }}
                 </h1>
-                <p class="opacity-90 font-medium">📍 Lieu : {{ match.lieu }}</p>
+
+                <p class="opacity-90 font-medium">
+                    📍 Lieu : {{ match.lieu }}
+                </p>
+
             </div>
 
-            <!-- Sélection de la Tribune -->
+            <!-- Sélection -->
             <div class="p-8">
-                <h2 class="text-2xl font-black text-slate-800 mb-6 underline decoration-blue-500 decoration-4 underline-offset-4">Choisissez votre tribune</h2>
-                
-                <form action="/confirmer_achat" method="POST">
+
+                <h2 class="text-2xl font-black text-slate-800 mb-6 underline decoration-blue-500 decoration-4 underline-offset-4">
+                    Choisissez votre tribune
+                </h2>
+
+                <!-- FLASH ERROR -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-6 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl font-bold">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form action="/confirmer_achat" method="POST" id="reservationForm">
+
                     <input type="hidden" name="match_id" value="{{ match.id }}">
-                    
+
                     <div class="space-y-4 mb-8">
+
                         {% if match.tribunes_ouvertes %}
+
                             {% for tribune in match.tribunes_ouvertes %}
+
                                 {% set places_libres = places[tribune.id] %}
-                                
+
                                 <div class="relative block p-6 bg-white border-2 border-slate-100 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 {% if places_libres <= 0 %}opacity-60 bg-slate-50{% endif %}">
+
                                     <div class="flex-1">
-                                        <p class="text-lg font-black text-slate-800">{{ tribune.nom }}</p>
+
+                                        <p class="text-lg font-black text-slate-800">
+                                            {{ tribune.nom }}
+                                        </p>
+
                                         <p class="text-sm {% if places_libres > 0 %}text-blue-600{% else %}text-red-500{% endif %} font-black uppercase tracking-tighter italic">
+
                                             {% if places_libres > 0 %}
                                                 {{ places_libres }} places disponibles
                                             {% else %}
                                                 🚫 COMPLET
                                             {% endif %}
+
                                         </p>
-                                        <p class="text-2xl font-black text-blue-600 mt-1">{{ tribune.prix }}€ <span class="text-[10px] text-slate-400 uppercase italic">/ place</span></p>
+
+                                        <p class="text-2xl font-black text-blue-600 mt-1">
+                                            {{ tribune.prix }}€
+                                            <span class="text-[10px] text-slate-400 uppercase italic">
+                                                / place
+                                            </span>
+                                        </p>
+
                                     </div>
 
                                     <div class="flex items-center gap-3">
-                                        <label class="text-xs font-bold text-slate-400 uppercase">Quantité :</label>
-                                        <input type="number" 
-                                               name="qty_{{ tribune.id }}" 
-                                               value="0" 
-                                               min="0" 
-                                               max="{{ places_libres }}" 
-                                               {% if places_libres <= 0 %}disabled{% endif %}
-                                               class="w-20 bg-slate-100 border-2 border-slate-200 rounded-xl px-3 py-2 font-bold text-center focus:border-blue-500 outline-none transition">
+
+                                        <label class="text-xs font-bold text-slate-400 uppercase">
+                                            Quantité :
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="qty_{{ tribune.id }}"
+                                            value="0"
+                                            min="0"
+                                            max="{{ places_libres }}"
+                                            {% if places_libres <= 0 %}disabled{% endif %}
+                                            class="w-20 bg-slate-100 border-2 border-slate-200 rounded-xl px-3 py-2 font-bold text-center focus:border-blue-500 outline-none transition"
+                                        >
+
                                     </div>
+
                                 </div>
+
                             {% endfor %}
+
                         {% else %}
+
                             <p class="text-center text-slate-500 italic p-10 bg-slate-50 rounded-2xl">
                                 Désolé, aucune tribune n'est ouverte pour ce match.
                             </p>
+
                         {% endif %}
+
                     </div>
 
                     {% if match.tribunes_ouvertes %}
+
                     <div class="bg-blue-50 p-6 rounded-2xl mb-8 border border-blue-100">
-                        <p class="text-sm text-blue-800 font-medium">Récupérez vos billets directement sur votre Dashboard après confirmation.</p>
+
+                        <p class="text-sm text-blue-800 font-medium">
+                            Maximum 10 billets par achat.
+                        </p>
+
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl text-xl transition shadow-xl shadow-blue-200 uppercase tracking-tight italic">
+
+                    <!-- ERREUR -->
+                    <p id="erreurLimite"
+                       class="hidden text-red-600 font-bold text-center mb-4 text-lg">
+                        ❌ Vous ne pouvez pas acheter plus de 10 billets.
+                    </p>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl text-xl transition shadow-xl shadow-blue-200 uppercase tracking-tight italic">
+
                         Confirmer l'achat groupé
+
                     </button>
+
                     {% endif %}
+
                 </form>
+
             </div>
+
         </div>
 
-        <p class="text-center text-slate-400 text-xs mt-8">Stadium Manager © 2024 - Paiement sécurisé (Simulation)</p>
+        <p class="text-center text-slate-400 text-xs mt-8">
+            Stadium Manager © 2024 - Paiement sécurisé
+        </p>
+
     </div>
+
+    <!-- SCRIPT -->
+    <script>
+
+        const form = document.getElementById("reservationForm");
+        const erreur = document.getElementById("erreurLimite");
+
+        form.addEventListener("submit", function(event) {
+
+            let total = 0;
+
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                total += Number(input.value);
+            });
+
+            if (total > 10) {
+
+                event.preventDefault();
+
+                erreur.classList.remove("hidden");
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+            }
+
+        });
+
+    </script>
+
 </body>
 </html>

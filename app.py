@@ -414,30 +414,53 @@ def reserver(match_id):
 
 @app.route('/confirmer_achat', methods=['POST'])
 def confirmer_achat():
+
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     match = Match.query.get(request.form.get('match_id'))
+
     if not match:
         return redirect(url_for('home'))
 
-    admin = User.query.filter_by(club_id=match.club_id, is_admin=True).first()
+    admin = User.query.filter_by(
+        club_id=match.club_id,
+        is_admin=True
+    ).first()
+
     if not admin or not admin.stripe_account_id:
         return "Erreur : compte Stripe non configuré pour ce club", 400
 
     tribunes_data = {}
     line_items = []
     total_centimes = 0
+    total_billets = 0
 
     for tribune in match.tribunes_ouvertes:
+
         qty = int(request.form.get(f'qty_{tribune.id}') or 0)
 
         if qty <= 0:
             continue
 
+        total_billets += qty
+
+        # 🔥 LIMITE
+        if total_billets > 10:
+
+            flash(
+                "Vous ne pouvez pas acheter plus de 10 billets.",
+                "error"
+            )
+
+            return redirect(
+                url_for('reserver', match_id=match.id)
+            )
+
         prix_centimes = int(tribune.prix * 100)
 
         tribunes_data[tribune.id] = qty
+
         total_centimes += prix_centimes * qty
 
         line_items.append({
@@ -452,21 +475,39 @@ def confirmer_achat():
         })
 
     if not line_items:
+
         flash("Sélectionne au moins un billet", "error")
-        return redirect(url_for('reserver', match_id=match.id))
+
+        return redirect(
+            url_for('reserver', match_id=match.id)
+        )
 
     session_stripe = stripe.checkout.Session.create(
+
         payment_method_types=['card'],
+
         line_items=line_items,
+
         mode='payment',
+
         payment_intent_data={
             "application_fee_amount": int(total_centimes * 0.10),
             "transfer_data": {
                 "destination": admin.stripe_account_id
             }
         },
-        success_url=url_for('success', _external=True) + f"?match_id={match.id}",
-        cancel_url=url_for('reserver', match_id=match.id, _external=True),
+
+        success_url=url_for(
+            'success',
+            _external=True
+        ) + f"?match_id={match.id}",
+
+        cancel_url=url_for(
+            'reserver',
+            match_id=match.id,
+            _external=True
+        ),
+
         metadata={
             "match_id": str(match.id),
             "user_id": str(session['user_id']),
