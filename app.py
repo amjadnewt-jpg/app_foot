@@ -479,6 +479,7 @@ def confirmer_achat():
 
 @app.route('/stripe/webhook', methods=['POST'])
 def stripe_webhook():
+
     import uuid
     import ast
 
@@ -488,6 +489,7 @@ def stripe_webhook():
             request.headers.get('Stripe-Signature'),
             endpoint_secret
         )
+
     except Exception as e:
         print("❌ ERROR WEBHOOK:", e)
         return "error", 400
@@ -498,24 +500,41 @@ def stripe_webhook():
     session_data = event['data']['object']
     session_id = session_data['id']
 
-    if Billet.query.filter_by(stripe_session_id=session_id).first():
-        print("⚠️ Déjà traité webhook -> IGNORÉ")
+    # 🔥 anti doublon
+    already_done = Billet.query.filter_by(
+        stripe_session_id=session_id
+    ).first()
+
+    if already_done:
+        print("⚠️ Déjà traité")
         return "ok", 200
 
-    match = Match.query.get(int(session_data['metadata']['match_id']))
-    user = User.query.get(int(session_data['metadata']['user_id']))
-    tribunes = ast.literal_eval(session_data['metadata']['tribunes'])
+    match = Match.query.get(
+        int(session_data['metadata']['match_id'])
+    )
+
+    user = User.query.get(
+        int(session_data['metadata']['user_id'])
+    )
+
+    tribunes = ast.literal_eval(
+        session_data['metadata']['tribunes']
+    )
 
     if not match or not user:
         return "error", 400
 
+    emails_a_envoyer = []
+
     for tribune_id, qty in tribunes.items():
+
         tribune = Tribune.query.get(int(tribune_id))
 
         if not tribune:
             continue
 
         for _ in range(qty):
+
             qr_token = str(uuid.uuid4())
             filename = f"{qr_token}.png"
 
@@ -531,9 +550,16 @@ def stripe_webhook():
             )
 
             db.session.add(billet)
-            envoyer_billet_email(user.email, filename)
 
+            emails_a_envoyer.append(filename)
+
+    # 🔥 commit AVANT emails
     db.session.commit()
+
+    # 🔥 emails après commit
+    for filename in emails_a_envoyer:
+        envoyer_billet_email(user.email, filename)
+
     print("✅ OK PAYEMENT + QR + EMAIL")
 
     return "ok", 200
