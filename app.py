@@ -4,6 +4,7 @@ from config import Config
 from datetime import datetime
 from flask_mail import Mail, Message
 import os
+import socket
 
 
 from flask import request
@@ -222,6 +223,7 @@ def envoyer_email(destinataire, username):
     )
     msg.body = f"Bonjour {username}, merci pour votre inscription !"
     
+    
     mail.send(msg)
 
 
@@ -261,6 +263,7 @@ def envoyer_billet_email(destinataire, qr_filename):
         with open(path, "rb") as fp:
             msg.attach(qr_filename, "image/png", fp.read())
 
+        socket.setdefaulttimeout(10)
         mail.send(msg)
         print("✅ EMAIL ENVOYÉ :", destinataire)
 
