@@ -3,6 +3,15 @@ import os
 class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "connect_args": {
+            "sslmode": "require"
+        }
+    }
+
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
     MAIL_SERVER = "smtp.gmail.com"
