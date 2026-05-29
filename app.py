@@ -604,8 +604,10 @@ def stripe_webhook():
     db.session.commit()
 
     # 🔥 emails après commit
+    print("AVANT EMAIL")
     for filename in emails_a_envoyer:
         envoyer_billet_email(user.email, filename)
+    print("APRES EMAIL")
 
     print("✅ OK PAYEMENT + QR + EMAIL")
 
