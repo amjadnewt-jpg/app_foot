@@ -247,20 +247,25 @@ def generate_qr(data, filename):
 
 
 def envoyer_billet_email(destinataire, qr_filename):
-    msg = Message(
-        "🎟️ Ton billet",
-        recipients=[destinataire]
-    )
+    try:
+        msg = Message(
+            "🎟️ Ton billet",
+            recipients=[destinataire]
+        )
 
-    msg.body = "Voici ton billet avec ton QR code"
+        msg.body = "Voici ton billet avec ton QR code"
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(base_dir, "static", "qrcodes", qr_filename)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(base_dir, "static", "qrcodes", qr_filename)
 
-    with open(path, "rb") as fp:
-        msg.attach(qr_filename, "image/png", fp.read())
+        with open(path, "rb") as fp:
+            msg.attach(qr_filename, "image/png", fp.read())
 
-    mail.send(msg)
+        mail.send(msg)
+        print("✅ EMAIL ENVOYÉ :", destinataire)
+
+    except Exception as e:
+        print("❌ ERREUR EMAIL :", e)
 
 @app.route('/add_tribune', methods=['POST'])
 def add_tribune():
