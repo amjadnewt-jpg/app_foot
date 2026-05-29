@@ -254,7 +254,8 @@ def envoyer_billet_email(destinataire, qr_filename):
 
     msg.body = "Voici ton billet avec ton QR code"
 
-    path = os.path.join("static", "qrcodes", qr_filename)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base_dir, "static", "qrcodes", qr_filename)
 
     with open(path, "rb") as fp:
         msg.attach(qr_filename, "image/png", fp.read())
