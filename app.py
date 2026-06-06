@@ -5,6 +5,8 @@ from datetime import datetime
 from flask_mail import Mail, Message
 import os
 import socket
+import resend
+import base64
 
 
 from flask import request
@@ -217,14 +219,18 @@ def register_admin():
     return render_template('register_admin.html')
 
 def envoyer_email(destinataire, username):
-    msg = Message(
-        "Bienvenue sur Stadium Manager",
-        recipients=[destinataire]
-    )
-    msg.body = f"Bonjour {username}, merci pour votre inscription !"
-    
-    
-    mail.send(msg)
+
+    resend.api_key = os.environ.get("RESEND_API_KEY")
+
+    resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": [destinataire],
+        "subject": "Bienvenue sur FootArena",
+        "html": f"""
+        <h2>Bienvenue {username}</h2>
+        <p>Merci pour votre inscription.</p>
+        """
+    })
 
 
 # 🔥 AJOUTE ICI ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
@@ -250,28 +256,35 @@ def generate_qr(data, filename):
 
 def envoyer_billet_email(destinataire, qr_filename):
     try:
-        msg = Message(
-            "🎟️ Ton billet",
-            recipients=[destinataire]
-        )
-
-        msg.body = "Voici ton billet avec ton QR code"
+        resend.api_key = os.environ.get("RESEND_API_KEY")
 
         base_dir = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(base_dir, "static", "qrcodes", qr_filename)
 
         with open(path, "rb") as fp:
-            msg.attach(qr_filename, "image/png", fp.read())
+            qr_base64 = base64.b64encode(fp.read()).decode("utf-8")
 
-        
-        print("MAIL SERVER =", app.config["MAIL_SERVER"])
-        print("MAIL PORT =", app.config["MAIL_PORT"])
-        print("MAIL USER =", app.config["MAIL_USERNAME"])
-        mail.send(msg)
-        print("✅ EMAIL ENVOYÉ :", destinataire)
+        resend.Emails.send({
+            "from": "FootArena <onboarding@resend.dev>",
+            "to": [destinataire],
+            "subject": "🎟️ Ton billet FootArena",
+            "html": """
+                <h2>Merci pour votre achat</h2>
+                <p>Votre billet est disponible en pièce jointe.</p>
+                <p>Présente ce QR code à l'entrée du stade.</p>
+            """,
+            "attachments": [
+                {
+                    "filename": qr_filename,
+                    "content": qr_base64
+                }
+            ]
+        })
+
+        print("✅ EMAIL BILLET ENVOYÉ :", destinataire)
 
     except Exception as e:
-        print("❌ ERREUR EMAIL :", e)
+        print("❌ ERREUR EMAIL BILLET :", e)
 
 @app.route('/add_tribune', methods=['POST'])
 def add_tribune():
