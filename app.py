@@ -223,7 +223,7 @@ def envoyer_email(destinataire, username):
         resend.api_key = os.environ.get("RESEND_API_KEY")
 
         resend.Emails.send({
-            "from": "FootArena <onboarding@resend.dev>",
+            "from": "FootArena <noreply@amjad-kadi.be>",
             "to": [destinataire],
             "subject": "Bienvenue sur FootArena",
             "html": f"""
@@ -270,7 +270,7 @@ def envoyer_billet_email(destinataire, qr_filename):
             qr_base64 = base64.b64encode(fp.read()).decode("utf-8")
 
         resend.Emails.send({
-            "from": "FootArena <onboarding@resend.dev>",
+            "from": "FootArena <noreply@amjad-kadi.be>",
             "to": [destinataire],
             "subject": "🎟️ Ton billet FootArena",
             "html": """
@@ -717,53 +717,7 @@ def check(qr_token, club_id):
     return {"status": "ok"}
 
 
-@app.route('/debug-db')
-def debug_db():
-    try:
-        nb_users = User.query.count()
-        nb_billets = Billet.query.count()
 
-        return {
-            "status": "ok",
-            "users": nb_users,
-            "billets": nb_billets
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }, 500
-
-
-@app.route('/debug-mail')
-def debug_mail():
-    try:
-        print("MAIL SERVER =", app.config["MAIL_SERVER"])
-        print("MAIL PORT =", app.config["MAIL_PORT"])
-        print("MAIL USER =", app.config["MAIL_USERNAME"])
-
-        msg = Message(
-            "Test email FootArena",
-            recipients=[app.config["MAIL_USERNAME"]]
-        )
-
-        msg.body = "Ceci est un test d'envoi email depuis Render."
-
-        mail.send(msg)
-
-        return {
-            "status": "ok",
-            "message": "Email envoyé"
-        }
-
-    except Exception as e:
-        print("❌ DEBUG MAIL ERROR :", e)
-
-        return {
-            "status": "error",
-            "message": str(e)
-        }, 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=3000, debug=True)
