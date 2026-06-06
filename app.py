@@ -264,6 +264,9 @@ def envoyer_billet_email(destinataire, qr_filename):
             msg.attach(qr_filename, "image/png", fp.read())
 
         socket.setdefaulttimeout(10)
+        print("MAIL SERVER =", app.config["MAIL_SERVER"])
+        print("MAIL PORT =", app.config["MAIL_PORT"])
+        print("MAIL USER =", app.config["MAIL_USERNAME"])
         mail.send(msg)
         print("✅ EMAIL ENVOYÉ :", destinataire)
 
