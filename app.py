@@ -219,18 +219,23 @@ def register_admin():
     return render_template('register_admin.html')
 
 def envoyer_email(destinataire, username):
+    try:
+        resend.api_key = os.environ.get("RESEND_API_KEY")
 
-    resend.api_key = os.environ.get("RESEND_API_KEY")
+        resend.Emails.send({
+            "from": "FootArena <onboarding@resend.dev>",
+            "to": [destinataire],
+            "subject": "Bienvenue sur FootArena",
+            "html": f"""
+                <h2>Bienvenue {username}</h2>
+                <p>Merci pour votre inscription sur FootArena.</p>
+            """
+        })
 
-    resend.Emails.send({
-        "from": "onboarding@resend.dev",
-        "to": [destinataire],
-        "subject": "Bienvenue sur FootArena",
-        "html": f"""
-        <h2>Bienvenue {username}</h2>
-        <p>Merci pour votre inscription.</p>
-        """
-    })
+        print("✅ EMAIL INSCRIPTION ENVOYÉ :", destinataire)
+
+    except Exception as e:
+        print("❌ ERREUR EMAIL INSCRIPTION :", e)
 
 
 # 🔥 AJOUTE ICI ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
