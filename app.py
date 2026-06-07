@@ -677,12 +677,7 @@ def scan_qr(qr_token):
     billet.is_used = True
     db.session.commit()
 
-    try:
-        requests.get("http://192.168.0.189:5001/open", timeout=5)
-    except Exception as e:
-        print("Erreur connexion Raspberry :", e)
-
-    return "✅ Accès autorisé"
+    return redirect("http://192.168.0.189:5001/open")
 
 
 
