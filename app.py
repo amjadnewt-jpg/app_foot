@@ -660,8 +660,12 @@ def success():
 
 import requests
 
-@app.route('/scan/<qr_token>')
+@app.route('/scan/<path:qr_token>')
 def scan_qr(qr_token):
+
+    if "/scan/" in qr_token:
+        qr_token = qr_token.split("/scan/")[-1]
+
     billet = Billet.query.filter_by(qr_code=qr_token).first()
 
     if not billet:
@@ -670,15 +674,13 @@ def scan_qr(qr_token):
     if billet.is_used:
         return "⚠️ Déjà utilisé"
 
-    # 🔥 MARQUE UTILISÉ
     billet.is_used = True
     db.session.commit()
 
-    # 🔥 OUVRIR LE PORTIQUE (RASPBERRY)
     try:
-        requests.get("http://192.168.0.189:5001/open")
-    except:
-        print("Erreur connexion Raspberry")
+        requests.get("http://192.168.0.189:5001/open", timeout=5)
+    except Exception as e:
+        print("Erreur connexion Raspberry :", e)
 
     return "✅ Accès autorisé"
 
