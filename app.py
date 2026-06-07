@@ -609,7 +609,8 @@ def stripe_webhook():
             qr_token = str(uuid.uuid4())
             filename = f"{qr_token}.png"
 
-            generate_qr(qr_token, filename)
+            scan_url = f"https://app-foot-gny6.onrender.com/scan/{qr_token}"
+            generate_qr(scan_url, filename)
 
             billet = Billet(
                 user_id=user.id,
