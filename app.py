@@ -259,7 +259,7 @@ def generate_qr(data, filename):
     return path
 
 
-def envoyer_billet_email(destinataire, qr_filename):
+def envoyer_billet_email(destinataire, qr_filename, match, tribune):
     try:
         resend.api_key = os.environ.get("RESEND_API_KEY")
 
@@ -273,8 +273,15 @@ def envoyer_billet_email(destinataire, qr_filename):
             "from": "FootArena <noreply@amjad-kadi.be>",
             "to": [destinataire],
             "subject": "🎟️ Ton billet FootArena",
-            "html": """
+            "html": f"""
                 <h2>Merci pour votre achat</h2>
+
+                <p><b>Match :</b> {match.club.nom} - {match.adversaire}</p>
+                <p><b>Compétition :</b> {match.competition.nom}</p>
+                <p><b>Date :</b> {match.date}</p>
+                <p><b>Lieu :</b> {match.lieu}</p>
+                <p><b>Tribune :</b> {tribune.nom}</p>
+
                 <p>Votre billet est disponible en pièce jointe.</p>
                 <p>Présentez ce QR code à l'entrée du stade.</p>
             """,
