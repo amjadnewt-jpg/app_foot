@@ -630,15 +630,23 @@ def stripe_webhook():
 
             db.session.add(billet)
 
-            emails_a_envoyer.append(filename)
+            emails_a_envoyer.append({
+            "filename": filename,
+            "tribune": tribune
+            })
 
     # 🔥 commit AVANT emails
     db.session.commit()
 
     # 🔥 emails après commit
     print("AVANT EMAIL")
-    for filename in emails_a_envoyer:
-        envoyer_billet_email(user.email, filename)
+    for item in emails_a_envoyer:
+        envoyer_billet_email(
+            user.email,
+            item["filename"],
+            match,
+            item["tribune"]
+            )
     print("APRES EMAIL")
 
     print("✅ OK PAYEMENT + QR + EMAIL")
