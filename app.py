@@ -276,7 +276,7 @@ def envoyer_billet_email(destinataire, qr_filename):
             "html": """
                 <h2>Merci pour votre achat</h2>
                 <p>Votre billet est disponible en pièce jointe.</p>
-                <p>Présente ce QR code à l'entrée du stade.</p>
+                <p>Présentez ce QR code à l'entrée du stade.</p>
             """,
             "attachments": [
                 {
