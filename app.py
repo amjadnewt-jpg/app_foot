@@ -174,6 +174,10 @@ def register_client():
     
 @app.route('/register/admin', methods=['GET', 'POST'])
 def register_admin():
+
+    pays_disponibles = db.session.query(Competition.pays).distinct().all()
+    pays_disponibles = [p[0] for p in pays_disponibles]
+
     if request.method == 'POST':
         nom = request.form.get('username')
         mail = request.form.get('email')
@@ -182,20 +186,19 @@ def register_admin():
         pays_club = request.form.get('pays')
 
         club = Club.query.filter_by(nom=nom_club).first()
+
         if not club:
             club = Club(nom=nom_club, pays=pays_club)
             db.session.add(club)
             db.session.flush()
 
-        # 🔴 CREATE STRIPE ACCOUNT
-        compte = stripe.Account.create(
+            compte = stripe.Account.create(
             type="express",
             country="FR",
             email=mail
         )
 
-        # 🟢 CREATE ONBOARDING LINK (TON CODE ICI)
-        link = stripe.AccountLink.create(
+            link = stripe.AccountLink.create(
             account=compte.id,
             refresh_url=url_for('home', _external=True),
             return_url=url_for('home', _external=True),
@@ -216,7 +219,10 @@ def register_admin():
 
         return redirect(link.url)
 
-    return render_template('register_admin.html')
+    return render_template(
+        'register_admin.html',
+        pays_disponibles=pays_disponibles
+    )
 
 def envoyer_email(destinataire, username):
     try:
