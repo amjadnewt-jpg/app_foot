@@ -1,48 +1,70 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner QR</title>
 
-```
-<!-- Librairie scanner -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-```
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 30px;
+            background: #f5f5f5;
+        }
+
+        #reader {
+            width: 350px;
+            margin: auto;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
 </head>
 <body>
 
-<h2>📷 Scanner un billet</h2>
+    <h2>📷 Scanner un billet</h2>
 
-<!-- Zone caméra -->
+    <div id="reader"></div>
 
-<div id="reader" style="width:300px;"></div>
+    <p id="result"></p>
 
-<!-- Résultat -->
+    <script>
+        function onScanSuccess(decodedText) {
 
-<p id="result"></p>
+            document.getElementById("result").innerText =
+                "QR détecté : " + decodedText;
 
-<script>
-function onScanSuccess(decodedText) {
-    document.getElementById("result").innerText = "QR détecté : " + decodedText;
+            // Stop le scanner pour éviter les doubles scans
+            scanner.clear();
 
-    // Redirection vers Flask
-    window.location.href = "/scan/" + decodedText;
-}
+            // Si le QR contient déjà une URL complète
+            if (
+                decodedText.startsWith("http://") ||
+                decodedText.startsWith("https://")
+            ) {
+                window.location.href = decodedText;
+            } else {
+                window.location.href = "/scan/" + decodedText;
+            }
+        }
 
-// Initialisation scanner
-let scanner = new Html5QrcodeScanner(
-    "reader",
-    {
-        fps: 10,
-        qrbox: 250
-    }
-);
+        let scanner = new Html5QrcodeScanner(
+            "reader",
+            {
+                fps: 10,
+                qrbox: 250
+            }
+        );
 
-// Lancer le scan
-scanner.render(onScanSuccess);
-</script>
+        scanner.render(onScanSuccess);
+    </script>
 
 </body>
 </html>
