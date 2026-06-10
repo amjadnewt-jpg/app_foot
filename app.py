@@ -182,7 +182,7 @@ def register_admin():
         nom = request.form.get('username')
         mail = request.form.get('email')
         mdp = request.form.get('password')
-        nom_club = request.form.get('club_name')
+        nom_club = request.form.get('nom_club')
         pays_club = request.form.get('pays')
 
         club = Club.query.filter_by(nom=nom_club).first()
