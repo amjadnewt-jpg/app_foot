@@ -622,7 +622,7 @@ def stripe_webhook():
             qr_token = str(uuid.uuid4())
             filename = f"{qr_token}.png"
 
-            scan_url = f"http://192.168.0.189:5001/scan/{qr_token}"
+            scan_url = f"http://192.168.14.21:5001/scan/{qr_token}"
             generate_qr(scan_url, filename)
 
             billet = Billet(
@@ -698,7 +698,7 @@ def scan_qr(qr_token):
     billet.is_used = True
     db.session.commit()
 
-    return redirect("http://192.168.0.189:5001/open")
+    return redirect("http://192.168.14.21:5001/open")
 
 
 
